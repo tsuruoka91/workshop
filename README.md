@@ -1,6 +1,6 @@
 # README
 
-2022 年に実施の B3 のワークショップで用いるサンプルコード
+B3 のワークショップで用いるサンプルコード
 
 # 起動手順
 
@@ -10,17 +10,17 @@
 階層は以下のようになります。
 
 ```
-- workshop202207
+- workshop
 |-- app
 |-- bin
 |-- config
 ....
-|-- tapyrus_api_client.pem
+|-- tapyrus_api_client.p12
 ```
 
 ### 1.1. クライアント証明書
 
-Google ドライブで共有する `tapyrus_api_client_cert_2022-07-26.p12` を `workshop202207` ディレクトリに置きます。
+Google ドライブで共有する `tapyrus_api_client.p12` を `workshop` ディレクトリに置きます。
 
 TapyrusAPI のクライアント証明書は API 利用のための認証情報になります。
 
@@ -32,7 +32,8 @@ TapyrusAPI のアクセストークンはそれぞれのウォレットを識別
 
 ### 1.3. TapyrusAPI エンドポイント
 
-`lib/utils/tapyrus_api.rb` の 3 行目にある `TAPYRUS_API_ENDPOINT_URL = 'ここにURLを記入してください'` の部分に TapyrusAPI エンドポイントの URL を以下のように書いてください。
+`lib/utils/tapyrus_api.rb` の 3 行目にある `TAPYRUS_API_ENDPOINT_URL = 'ここにURLを記入してください'` の部分に TapyrusAPI エンドポイントの URL を以下のように書いてください。 
+エンドポイントは当日Discord、Zoom等でお知らせします。
 
 ```ruby
 TAPYRUS_API_ENDPOINT_URL = "https://yzjwv84b.api.tapyrus.chaintope.com"
@@ -47,7 +48,7 @@ Docker で用意された環境を起動します。
 初回起動時はデータベースがないため作成する必要があります。
 以下のコマンドを実行しデータベースを作成します。
 
-workshop202207 フォルダに移動して、以下のコマンドを実行してください。
+workshop フォルダに移動して、以下のコマンドを実行してください。
 
 ```
 docker compose run --rm web bin/rails db:create
@@ -55,7 +56,7 @@ docker compose run --rm web bin/rails db:create
 
 ### 2.2. アプリケーションを起動する
 
-workshop202207 フォルダに移動して、以下のコマンドを実行してください。
+workshop フォルダに移動して、以下のコマンドを実行してください。
 
 ```
 docker compose up --build
@@ -83,7 +84,7 @@ docker compose down -v --remove-orphans
 
 Rake タスクを実行して TapyrusAPI を実行できるようにしてみましょう。
 
-1. TapyrusAPI への接続を確認する
+### 1. TapyrusAPI への接続を確認する
 
 まずは、TapyrusAPI に接続できるかを確認します。以下のコマンドを実行して、address の一覧を取得してみましょう。
 
@@ -100,7 +101,7 @@ docker compose exec web bin/rails api:get_addresses
 
 コマンド実行時に、エラーメッセージが表示される場合は、TapyrusAPI への URL の設定、もしくはクライアント証明書の配置が正しくない可能性があるので、設定内容を見直してください。
 
-2. アドレスを作成する
+### 2. アドレスを作成する
 
 以下のコマンドでアドレスを作成できるように実装してみましょう。
 
@@ -154,7 +155,7 @@ docker compose exec web bin/rails api:post_addresses
 "13aV8XCYZDQvPFEDFoYrE69qizYWJpPrpT"
 ```
 
-3 トークンを新規発行する
+### 3. トークンを新規発行する
 
 以下のコマンドでトークンを発行できるように実装してみましょう。
 
@@ -209,7 +210,49 @@ token_type に 2 を指定すると、再発行不可能なトークンとなる
 
 token_type を 3 にすると NFT となるため、トークンの発行数は常に 1 になります。
 
-4 トークンを送付する
+### 4. トークンを確認する
+
+以下のコマンドでトークンを確認できるように実装してみましょう。
+
+```bash
+docker compose exec web bin/rails api:get_tokens
+```
+
+このコマンドで実行されるのは `lib/tasks/api.rake` の 21 行目です。この中で`TapyrusApi.get_tokens(confirmation_only)`を呼び出しています。
+
+先ほどと同様にメソッドの中身がありませんので実装しましょう。
+
+```ruby
+def get_tokens(confirmation_only = true)
+  res = instance.connection.get("/api/v1/tokens") do |req|
+    req.headers['Authorization'] = "Bearer #{instance.access_token}"
+    req.params['confirmation_only'] = confirmation_only
+  end
+
+  res.body
+end
+```
+
+これらのコードは、TapyrusAPI のトークンの総量取得機能を呼び出すものです。
+https://doc.api.tapyrus.chaintope.com/#tag/token/operation/getTokens
+
+これでコマンドが実行できるようになりました。以下のコマンドを実行してトークンを確認しましょう。
+自分のアドレスに送付した人は、発行時と変わらないと思いますが、他人のアドレスに送付した人は自分が発行したトークンが減少しています。
+また、他の人からトークンを送付された人は自分が発行したものとは別のトークンが確認できます。
+
+```bash
+docker compose exec web bin/rails api:get_tokens
+```
+
+以下のように、所持しているトークンの ID と総量が表示されれば、正しく実装できています。
+
+```ruby
+[{:token_id=>"c154fb27bbb2c91c1eec9357032cf029e0bf6257b429a427d5587504b3c85ca11c", :amount=>100}]
+```
+
+もちろんトークンを複数種類発行したり、他の人から受け取っていた場合は、その種類分のトークンが表示されます。
+
+### 5. トークンを送付する
 
 以下のコマンドでトークンを送付できるように実装してみましょう。
 
@@ -255,44 +298,4 @@ docker compose exec web bin/rails api:put_tokens_transfer'[c154fb27bbb2c91c1eec9
 {:token_id=>"c154fb27bbb2c91c1eec9357032cf029e0bf6257b429a427d5587504b3c85ca11c", :txid=>"33ed4f17ea85746256225eaaebd7d7d7c45337bfc80081b01cb9a2af4da5672a"}
 ```
 
-5 トークンを確認する
 
-以下のコマンドでトークンを確認できるように実装してみましょう。
-
-```bash
-docker compose exec web bin/rails api:get_tokens
-```
-
-このコマンドで実行されるのは `lib/tasks/api.rake` の 21 行目です。この中で`TapyrusApi.get_tokens(confirmation_only)`を呼び出しています。
-
-先ほどと同様にメソッドの中身がありませんので実装しましょう。
-
-```ruby
-def get_tokens(confirmation_only = true)
-  res = instance.connection.get("/api/v1/tokens") do |req|
-    req.headers['Authorization'] = "Bearer #{instance.access_token}"
-    req.params['confirmation_only'] = confirmation_only
-  end
-
-  res.body
-end
-```
-
-これらのコードは、TapyrusAPI のトークンの総量取得機能を呼び出すものです。
-https://doc.api.tapyrus.chaintope.com/#tag/token/operation/getTokens
-
-これでコマンドが実行できるようになりました。以下のコマンドを実行してトークンを確認しましょう。
-自分のアドレスに送付した人は、発行時と変わらないと思いますが、他人のアドレスに送付した人は自分が発行したトークンが減少しています。
-また、他の人からトークンを送付された人は自分が発行したものとは別のトークンが確認できます。
-
-```bash
-docker compose exec web bin/rails api:get_tokens
-```
-
-以下のように、所持しているトークンの ID と総量が表示されれば、正しく実装できています。
-
-```ruby
-[{:token_id=>"c154fb27bbb2c91c1eec9357032cf029e0bf6257b429a427d5587504b3c85ca11c", :amount=>100}]
-```
-
-もちろんトークンを複数種類発行したり、他の人から受け取っていた場合は、その種類分のトークンが表示されます。

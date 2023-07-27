@@ -28,11 +28,11 @@ class TapyrusApi
       # ワーク3.で実装
     end
 
-    def put_tokens_transfer(token_id, address:, amount:)
+    def get_tokens(confirmation_only = true)
       # ワーク4.で実装
     end
 
-    def get_tokens(confirmation_only = true)
+    def put_tokens_transfer(token_id, address:, amount:)
       # ワーク5.で実装
     end
 
@@ -114,6 +114,6 @@ class TapyrusApi
   end
 
   def load_client_cert_p12
-    File.read(Rails.root.join("tapyrus_api_client_cert_2022-07-26.p12"))
+    File.read(Rails.root.join("tapyrus_api_client.p12"))
   end
 end
