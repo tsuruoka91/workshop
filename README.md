@@ -1,6 +1,6 @@
 # README
 
-2022 年に実施の B3 のワークショップで用いるサンプルコード
+B3 のワークショップで用いるサンプルコード
 
 # 起動手順
 
@@ -10,17 +10,17 @@
 階層は以下のようになります。
 
 ```
-- workshop202207
+- workshop
 |-- app
 |-- bin
 |-- config
 ....
-|-- tapyrus_api_client.pem
+|-- tapyrus_api_client.p12
 ```
 
 ### 1.1. クライアント証明書
 
-Google ドライブで共有する `tapyrus_api_client_cert_2022-07-26.p12` を `workshop202207` ディレクトリに置きます。
+Google ドライブで共有する `tapyrus_api_client.p12` を `workshop` ディレクトリに置きます。
 
 TapyrusAPI のクライアント証明書は API 利用のための認証情報になります。
 
@@ -32,7 +32,8 @@ TapyrusAPI のアクセストークンはそれぞれのウォレットを識別
 
 ### 1.3. TapyrusAPI エンドポイント
 
-`lib/utils/tapyrus_api.rb` の 3 行目にある `TAPYRUS_API_ENDPOINT_URL = 'ここにURLを記入してください'` の部分に TapyrusAPI エンドポイントの URL を以下のように書いてください。
+`lib/utils/tapyrus_api.rb` の 3 行目にある `TAPYRUS_API_ENDPOINT_URL = 'ここにURLを記入してください'` の部分に TapyrusAPI エンドポイントの URL を以下のように書いてください。 
+エンドポイントは当日Discord、Zoom等でお知らせします。
 
 ```ruby
 TAPYRUS_API_ENDPOINT_URL = "https://yzjwv84b.api.tapyrus.chaintope.com"
@@ -47,7 +48,7 @@ Docker で用意された環境を起動します。
 初回起動時はデータベースがないため作成する必要があります。
 以下のコマンドを実行しデータベースを作成します。
 
-workshop202207 フォルダに移動して、以下のコマンドを実行してください。
+workshop フォルダに移動して、以下のコマンドを実行してください。
 
 ```
 docker compose run --rm web bin/rails db:create
@@ -55,7 +56,7 @@ docker compose run --rm web bin/rails db:create
 
 ### 2.2. アプリケーションを起動する
 
-workshop202207 フォルダに移動して、以下のコマンドを実行してください。
+workshop フォルダに移動して、以下のコマンドを実行してください。
 
 ```
 docker compose up --build
