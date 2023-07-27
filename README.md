@@ -15,12 +15,12 @@ B3 のワークショップで用いるサンプルコード
 |-- bin
 |-- config
 ....
-|-- tapyrus_api_client.p12
+|-- tapyrus_api_client_cert.p12
 ```
 
 ### 1.1. クライアント証明書
 
-Google ドライブで共有する `tapyrus_api_client.p12` を `workshop` ディレクトリに置きます。
+Google ドライブで共有する `tapyrus_api_client_cert.p12` を `workshop` ディレクトリに置きます。
 
 TapyrusAPI のクライアント証明書は API 利用のための認証情報になります。
 
